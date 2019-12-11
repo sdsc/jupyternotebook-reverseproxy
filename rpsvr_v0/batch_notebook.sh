@@ -23,7 +23,7 @@ API_TOKEN=$(echo "$API_TOKEN" | tr '\n' ' ') # removes the newline char
 API_TOKEN=$(echo "$API_TOKEN" | xargs) # remove extra spaces before or after
 
 # redeem the API_TOKEN given the untaken port
-url='"https://manage.comet-user-content.sdsc.edu/redeemAPI_TOKEN.cgi?API_TOKEN=$API_TOKEN&port=$PORT"'
+url='"https://manage.comet-user-content.sdsc.edu/redeemtoken.cgi?token=$API_TOKEN&port=$PORT"'
 
 # Redeem the API_TOKEN
 eval curl $url

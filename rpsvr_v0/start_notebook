@@ -4,21 +4,30 @@
 function start_notebook () {
 
 	# Start the batch job
-	sbatch batch_notebook.sh > /tmp/slurm_job_id.txt
+	sbatch batch_notebook.sh > slurm_job_id.txt
 
 	# get the sbatch job id so we can read the slurm output
-	JOB_ID=$(</tmp/slurm_job_id.txt) 	
+	JOB_ID=$(<slurm_job_id.txt) 	
 	JOB_ID=${JOB_ID#*"Submitted batch job "}
+    rm slurm_job_id.txt
 
 	# Wait until the slurm output file is available, then use it to grab the url and token
-	while [ ! -f slurm-"$JOB_ID".out ]
+	while [ ! -s slurm-"$JOB_ID".out ]
 	do
-	  echo "Waiting for batch job"
+	  echo "Waiting for batch job $JOB_ID"
 	  sleep 0.2
 	  clear
 	done
 
-	URL=$(grep "Your notebook is here: " slurm-"$JOB_ID".out) # get the base url
+    URL=""
+    while [ -z "$URL" ]
+    do
+        echo "Waiting for URL"
+        sleep 0.2
+        clear
+        URL=$(grep "Your notebook is here: " slurm-"$JOB_ID".out) # get the base url
+    done
+    echo $URL
 
 	JUPYTER_TOKEN=$(cat slurm-"$JOB_ID".out) # grab the output of the jupyter command to get the jupyter token
 	JUPYTER_TOKEN=${JUPYTER_TOKEN#*"?token="} # get the token on its own
@@ -26,7 +35,7 @@ function start_notebook () {
 
 	URL="$URL?token=$JUPYTER_TOKEN" # build the base url with the jupyter token
 	echo $URL # print it to the screen so the user can easily copy and paste
-	rm /tmp/slurm_job_id.txt 
 }
 
 start_notebook
+rm *.out
