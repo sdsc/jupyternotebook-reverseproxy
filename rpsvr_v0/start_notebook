@@ -32,10 +32,9 @@ function start_notebook () {
 	JUPYTER_TOKEN=$(cat slurm-"$JOB_ID".out) # grab the output of the jupyter command to get the jupyter token
 	JUPYTER_TOKEN=${JUPYTER_TOKEN#*"?token="} # get the token on its own
 	JUPYTER_TOKEN=$(echo $JUPYTER_TOKEN | cut -d ' ' -f 1) # get the token on its own
-
+    echo "Jupyter Token: $JUPYTER_TOKEN"
 	URL="$URL?token=$JUPYTER_TOKEN" # build the base url with the jupyter token
 	echo $URL # print it to the screen so the user can easily copy and paste
 }
 
 start_notebook
-rm *.out
