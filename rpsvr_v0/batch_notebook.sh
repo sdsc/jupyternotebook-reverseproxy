@@ -2,36 +2,43 @@
 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
-#SBATCH -p compute
+#SBATCH -p debug
 #SBATCH -t 00:30:00
 #SBATCH --wait 0
 
-# Find an unused port
-MIN_PORT=8000
-MAX_PORT=32000
-PORT=$MIN_PORT;
-for ((port=$MIN_PORT; port<=$MAX_PORT;port++))
-do
-    PORT=$port;
-    (echo >/dev/tcp/127.0.0.1/$port)> /dev/null 2>&1 && break;
-done;
+mkdir -p ~/.jupyter_secure
+TMPFILE=`mktemp -p ~/.jupyter_secure` || exit 1
 
-# get the API_TOKEN
-API_TOKEN_RESPONSE=$(curl https://manage.comet-user-content.sdsc.edu/getlink.cgi)
-API_TOKEN=${API_TOKEN_RESPONSE#*"Your token is "} # strips the API_TOKEN out of the response
-API_TOKEN=$(echo "$API_TOKEN" | tr '\n' ' ') # removes the newline char
-API_TOKEN=$(echo "$API_TOKEN" | xargs) # remove extra spaces before or after
+# Make a random ssl token
+JUPYTER_TOKEN=$(openssl rand -hex 16)
+echo $JUPYTER_TOKEN | tee -a $TMPFILE
 
-# redeem the API_TOKEN given the untaken port
-url='"https://manage.comet-user-content.sdsc.edu/redeemtoken.cgi?token=$API_TOKEN&port=$PORT"'
-
-# Redeem the API_TOKEN
-eval curl $url
-
-# Give the user the start of their url
-echo Your notebook is here: https://"$API_TOKEN".comet-user-content.sdsc.edu
+# Create the temp config file
+touch "$TMPFILE".py
+CONFIG_LINE="c.NotebookApp.token = '$JUPYTER_TOKEN'\nc.NotebookApp.notebook_dir = $2"
+echo $CONFIG_LINE >> "$TMPFILE".py
 
 # Get the comet node's IP
 IP="$(hostname -s).local"
-jupyter notebook --ip $IP --port $PORT
+jupyter notebook --ip $IP --config "$TMPFILE".py | tee $TMPFILE &
 
+
+# Waits for the notebook to start and gets the port
+PORT=""
+while [ -z "$PORT" ]
+do
+    PORT=$(grep '1.' $TMPFILE)
+    PORT=${PORT#*".local:"}
+    PORT=${PORT:0:4}
+done
+
+echo $PORT | tee -a $TMPFILE
+
+# redeem the API_TOKEN given the untaken port
+url='"https://manage.comet-user-content.sdsc.edu/redeemtoken.cgi?token=$1&port=$PORT"'
+
+# Redeem the API_TOKEN
+eval curl $url | tee -a $TMPFILE
+
+# waits for all child processes to complete, which means it waits for the jupyter notebook to be terminated
+wait
