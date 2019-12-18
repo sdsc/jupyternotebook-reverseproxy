@@ -5,6 +5,7 @@
 #SBATCH -p debug
 #SBATCH -t 00:30:00
 #SBATCH --wait 0
+#SBATCH -o /dev/null # STDOUT
 
 mkdir -p ~/.jupyter_secure
 TMPFILE=`mktemp -p ~/.jupyter_secure` || exit 1
@@ -15,8 +16,8 @@ echo $JUPYTER_TOKEN | tee -a $TMPFILE
 
 # Create the temp config file
 touch "$TMPFILE".py
-CONFIG_LINE="c.NotebookApp.token = '$JUPYTER_TOKEN'\nc.NotebookApp.notebook_dir = $2"
-echo $CONFIG_LINE >> "$TMPFILE".py
+echo "c.NotebookApp.token = '$JUPYTER_TOKEN'" | cat >> "$TMPFILE".py
+echo "c.NotebookApp.notebook_dir = '$2'" | cat >> "$TMPFILE".py
 
 # Get the comet node's IP
 IP="$(hostname -s).local"

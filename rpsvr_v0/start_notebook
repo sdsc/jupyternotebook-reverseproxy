@@ -3,7 +3,6 @@
 # Entry point for starting a notebook. Handles slurm processes and retrives url from slurm output
 function start_notebook () {
 
-	# get the sbatch job id 
     # get the API_TOKEN
     API_TOKEN_RESPONSE=$(curl https://manage.comet-user-content.sdsc.edu/getlink.cgi)
     API_TOKEN=${API_TOKEN_RESPONSE#*"Your token is "} # strips the API_TOKEN out of the response
@@ -13,13 +12,8 @@ function start_notebook () {
     # Give the user the start of their url
     echo Your notebook is here: https://"$API_TOKEN".comet-user-content.sdsc.edu
 
-    sbatch batch_notebook.sh $API_TOKEN $1
-
-	#JUPYTER_TOKEN=${JUPYTER_TOKEN#*"?token="} # get the token on its own
-	#JUPYTER_TOKEN=$(echo $JUPYTER_TOKEN | cut -d ' ' -f 1) # get the token on its own
-    #echo "Jupyter Token: $JUPYTER_TOKEN"
-	#URL="$URL?token=$JUPYTER_TOKEN" # build the base url with the jupyter token
+    # start the batch script with the api token and the starting directory
+    sbatch batch_notebook.sh $API_TOKEN $1 &> /dev/null
 }
 
 start_notebook $1
-rm *.out
