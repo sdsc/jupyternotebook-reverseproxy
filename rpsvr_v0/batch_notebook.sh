@@ -7,7 +7,7 @@
 #SBATCH --wait 0
 #SBATCH -o /dev/null # STDOUT
 
-mkdir -p ~/.jupyter_secure
+mkdir -m 600 -p ~/.jupyter_secure
 TMPFILE=`mktemp -p ~/.jupyter_secure` || exit 1
 
 # Make a random ssl token
@@ -16,6 +16,7 @@ echo $JUPYTER_TOKEN | tee -a $TMPFILE
 
 # Create the temp config file
 touch "$TMPFILE".py
+#chmod 600 "$TMPFILE".py"
 echo "c.NotebookApp.token = '$JUPYTER_TOKEN'" | cat >> "$TMPFILE".py
 echo "c.NotebookApp.notebook_dir = '$2'" | cat >> "$TMPFILE".py
 
@@ -41,5 +42,8 @@ url='"https://manage.comet-user-content.sdsc.edu/redeemtoken.cgi?token=$1&port=$
 # Redeem the API_TOKEN
 eval curl $url | tee -a $TMPFILE
 
+# Remove the temp files
+
 # waits for all child processes to complete, which means it waits for the jupyter notebook to be terminated
-wait
+wait && rm -rf ~/.jupyter_secure/*
+
