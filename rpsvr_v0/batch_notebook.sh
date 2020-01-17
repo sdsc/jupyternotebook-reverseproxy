@@ -2,7 +2,7 @@
 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
-#SBATCH -p debug
+#SBATCH -p compute
 #SBATCH -t 00:30:00
 #SBATCH --wait 0
 #SBATCH -o /dev/null # STDOUT
@@ -45,5 +45,4 @@ eval curl $url | tee -a $TMPFILE
 # Remove the temp files
 
 # waits for all child processes to complete, which means it waits for the jupyter notebook to be terminated
-wait && rm -rf ~/.jupyter_secure/*
-
+wait

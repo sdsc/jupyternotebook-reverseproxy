@@ -3,7 +3,7 @@
 # Entry point for starting a notebook. Handles slurm processes and retrives url from slurm output
 function start_notebook () {
 
-    # get the API_TOKEN
+    # get the Reversse proxy API_TOKEN
     API_TOKEN_RESPONSE=$(curl https://manage.comet-user-content.sdsc.edu/getlink.cgi)
     API_TOKEN=${API_TOKEN_RESPONSE#*"Your token is "} # strips the API_TOKEN out of the response
     API_TOKEN=$(echo "$API_TOKEN" | tr '\n' ' ') # removes the newline char
