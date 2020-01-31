@@ -1,8 +1,13 @@
 # jupyternotebook-reverseproxy
 Repository to hold code for the reverse proxy service
+# Contents
+`start_notebook` is the script executed by the user to start their job. It is aware of all information needed for the user to interact with their notebook, including the url, port on the compute node, and Jupyter Notebook token.
+`batch_notebook` is the script that is executed by slurm on the comet compute node. It starts the notebook and write information to ~/.jupyter_secure
 
-# To launch a jupyter notebook (12/10/2019)
-Navigate to the directory you want to start the notebook in
-Copy the scripts `start_notebook` and `batch_notebook.sh`
-Run the command `bash start_notebook`
-Wait until the terminal gives you a url and put that url in your browser
+# To launch a jupyter notebook (01/31/2020)
+run the following command:
+`./start_notebook`
+
+# Configuration
+Currently, all configuration must be done manually by the user by editing copies of the scripts.
+They can edit their compute node requirements in the batch_notebook script.
