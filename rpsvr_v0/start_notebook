@@ -4,16 +4,30 @@
 function start_notebook () {
 
     # get the Reversse proxy API_TOKEN
-    API_TOKEN_RESPONSE=$(curl https://manage.comet-user-content.sdsc.edu/getlink.cgi)
-    API_TOKEN=${API_TOKEN_RESPONSE#*"Your token is "} # strips the API_TOKEN out of the response
+    API_TOKEN_RESPONSE=$(curl -s https://manage.comet-user-content.sdsc.edu/getlink.cgi)
+    API_TOKEN=${API_TOKEN_RESPONSE#*"Your token is "} #strip the token out of response
     API_TOKEN=$(echo "$API_TOKEN" | tr '\n' ' ') # removes the newline char
     API_TOKEN=$(echo "$API_TOKEN" | xargs) # remove extra spaces before or after
 
-    # Give the user the start of their url
-    echo Your notebook is here: https://"$API_TOKEN".comet-user-content.sdsc.edu
+    mkdir -m 600 -p ~/.jupyter_secure
+    TMPFILE=`mktemp -p ~/.jupyter_secure` || exit 1
 
+    # Make a random ssl token
+    JUPYTER_TOKEN=$(openssl rand -hex 16)
+
+    # Create the temp config file
+    touch "$TMPFILE".py
+    echo "c.NotebookApp.token = '$JUPYTER_TOKEN'" | cat >> "$TMPFILE".py
+    echo "c.NotebookApp.notebook_dir = '$1'" | cat >> "$TMPFILE".py
+    echo "c.NotebookApp.allow_origin = '*'" | cat >> "$TMPFILE".py
+    echo "c.NotebookApp.allow_remote_access = True" | cat >> "$TMPFILE".py
+
+    # Give the user the start of their url
+    echo -e Your notebook is here:"\n" https://"$API_TOKEN".comet-user-content.sdsc.edu?token="$JUPYTER_TOKEN"
+    
     # start the batch script with the api token and the starting directory
-    sbatch batch_notebook.sh $API_TOKEN $1 &> /dev/null
+    sbatch batch_notebook.sh $API_TOKEN $1 $TMPFILE &> /dev/null
 }
 
+# $1 should be the path to start the notebook from
 start_notebook $1
