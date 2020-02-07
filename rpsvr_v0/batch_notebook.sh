@@ -4,6 +4,7 @@
 #SBATCH --ntasks-per-node=24
 #SBATCH -p debug
 #SBATCH -t 00:30:00
+#SBATCH -o /dev/null
 #SBATCH --wait 0
 
 echo $1
