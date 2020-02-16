@@ -11,3 +11,6 @@ run the following command:
 # Configuration
 Currently, all configuration must be done manually by the user by editing copies of the scripts.
 They can edit their compute node requirements in the batch_notebook script.
+
+# Working Notebooks
+[https://github.com/sinkovit/PythonSeries]Python Series
