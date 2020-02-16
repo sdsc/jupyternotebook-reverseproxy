@@ -13,4 +13,4 @@ Currently, all configuration must be done manually by the user by editing copies
 They can edit their compute node requirements in the batch_notebook script.
 
 # Working Notebooks
-[https://github.com/sinkovit/PythonSeries]Python Series
+Python Series: [https://github.com/sinkovit/PythonSeries]
