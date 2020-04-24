@@ -5,4 +5,4 @@ Repository to hold code for the reverse proxy service
 Don't use the code here. 
 
 # New Location
-https://github.com/sdsc/jupyternotebook-reverseproxy
+https://github.com/sdsc-hpc-training-org/reverse-proxy
